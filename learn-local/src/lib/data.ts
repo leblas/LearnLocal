@@ -203,6 +203,12 @@ export const userProgress = {
   communityRank: 42,
 };
 
+export const recentLessons = [
+  { food: '🍓', name: 'Strawberry', origin: 'Watsonville, CA', date: 'Today', xp: 50 },
+  { food: '🍅', name: 'Tomato', origin: 'Local greenhouse', date: 'Yesterday', xp: 50 },
+  { food: '🥬', name: 'Lettuce', origin: 'Community garden', date: '3 days ago', xp: 50 },
+];
+
 export const communityFeed = [
   {
     id: 1,

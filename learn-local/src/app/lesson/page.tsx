@@ -4,21 +4,16 @@ import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import NavBar from '@/components/NavBar';
+import VoiceLesson, { type LessonResult } from '@/components/VoiceLesson';
+import { VOICE_TRANSCRIPT_KEY, type LearningStyle } from '@/lib/constants';
 import {
   ArrowLeft, RefreshCw, MapPin, Leaf, Users, Zap, Star,
   ChevronRight, BookOpen, Sparkles,
 } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
-interface LessonResult {
-  foodStory: string;
-  learn: string;
-  impact: string;
-  takeAction: string;
-  funFact: string;
-}
-
-type Status = 'idle' | 'loading' | 'success' | 'error';
+type Status      = 'idle' | 'loading' | 'success' | 'error';
+type SaveStatus  = 'idle' | 'saving'  | 'saved'   | 'failed';
 
 // ── Static maps ───────────────────────────────────────────────────────────────
 const foodMeta: Record<string, { emoji: string; label: string; esLabel: string; accent: string; lightBg: string }> = {
@@ -168,11 +163,16 @@ function LessonContent() {
   const food        = searchParams.get('food')  || 'strawberry';
   const ageMode     = searchParams.get('age')   || 'student';
   const lang        = searchParams.get('lang')  || 'en';
+  const style       = (searchParams.get('style') || 'story') as LearningStyle;
+  const fromVoice   = searchParams.get('fromVoice') === '1';
 
-  const [status,  setStatus]  = useState<Status>('idle');
-  const [lesson,  setLesson]  = useState<LessonResult | null>(null);
-  const [errMsg,  setErrMsg]  = useState('');
-  const [visible, setVisible] = useState(false);
+  const [status,     setStatus]     = useState<Status>(fromVoice ? 'loading' : 'idle');
+  const [lesson,     setLesson]     = useState<LessonResult | null>(null);
+  const [errMsg,     setErrMsg]     = useState('');
+  const [visible,    setVisible]    = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [voiceTranscript, setVoiceTranscript] = useState<string | null>(null);
+  const [voiceReady, setVoiceReady] = useState(!fromVoice);
 
   const meta  = foodMeta[food]  ?? foodMeta.strawberry;
   const aMeta = ageMeta[ageMode] ?? ageMeta.student;
@@ -181,11 +181,38 @@ function LessonContent() {
   const learnerLabel = lang === 'es' ? aMeta.es : aMeta.en;
   const foodLabel    = lang === 'es' ? meta.esLabel : meta.label;
   const language     = lang === 'es' ? 'Spanish' : 'English';
+  const learningStyle = style === 'quick' ? 'quick' : style;
 
-  const generateLesson = useCallback(async () => {
+  useEffect(() => {
+    if (!fromVoice) return;
+    const t = sessionStorage.getItem(VOICE_TRANSCRIPT_KEY);
+    if (t) {
+      setVoiceTranscript(t);
+      sessionStorage.removeItem(VOICE_TRANSCRIPT_KEY);
+    }
+    setVoiceReady(true);
+  }, [fromVoice]);
+
+  useEffect(() => {
+    fetch('/api/save-profile', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        learnerType:   ageMode,
+        language,
+        learningStyle,
+      }),
+    }).catch(() => { /* non-fatal */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const generateLesson = useCallback(async (transcript?: string) => {
     setStatus('loading');
-    setLesson(null);
-    setVisible(false);
+    setSaveStatus('saving');
+    if (!transcript) {
+      setLesson(null);
+      setVisible(false);
+    }
     setErrMsg('');
 
     try {
@@ -196,7 +223,8 @@ function LessonContent() {
           food,
           learnerType:   ageMode,
           language,
-          learningStyle: 'story',
+          learningStyle,
+          ...(transcript ? { voiceTranscript: transcript } : {}),
         }),
       });
 
@@ -206,18 +234,27 @@ function LessonContent() {
         throw new Error(data.error || `Server error ${res.status}`);
       }
 
-      setLesson(data as LessonResult);
+      const { lesson: lessonData, memory } = data as {
+        lesson: LessonResult;
+        memory?: { redisConnected?: boolean };
+      };
+
+      setLesson(lessonData);
       setStatus('success');
-      // Stagger card reveal
+      setSaveStatus(memory?.redisConnected ? 'saved' : 'failed');
       setTimeout(() => setVisible(true), 80);
     } catch (err) {
       setErrMsg(err instanceof Error ? err.message : 'Something went wrong.');
       setStatus('error');
+      setSaveStatus('idle');
     }
-  }, [food, ageMode, language]);
+  }, [food, ageMode, language, learningStyle]);
 
-  // Auto-generate on mount
-  useEffect(() => { generateLesson(); }, [generateLesson]);
+  useEffect(() => {
+    if (!voiceReady) return;
+    if (fromVoice && voiceTranscript) return;
+    generateLesson();
+  }, [voiceReady, fromVoice, voiceTranscript, generateLesson]);
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-4 pb-16 space-y-5">
@@ -288,6 +325,33 @@ function LessonContent() {
         </div>
       </div>
 
+      {/* ── Voice: Push-to-Talk ── */}
+      <VoiceLesson
+        food={food}
+        learnerType={ageMode as 'kid' | 'student' | 'adult'}
+        language={language}
+        learningStyle={learningStyle}
+        lang={lang as 'en' | 'es'}
+        externalLesson={lesson}
+        initialTranscript={fromVoice ? voiceTranscript : null}
+        autoSpeak={fromVoice || !!voiceTranscript}
+        onLoading={() => {
+          setStatus('loading');
+          setVisible(false);
+          setErrMsg('');
+        }}
+        onLessonReady={(lessonData, meta) => {
+          setLesson(lessonData);
+          setStatus('success');
+          setSaveStatus(meta.redisConnected ? 'saved' : 'failed');
+          setTimeout(() => setVisible(true), 80);
+        }}
+        onError={(msg) => {
+          setErrMsg(msg);
+          if (status !== 'success') setStatus('error');
+        }}
+      />
+
       {/* ── Loading ── */}
       {status === 'loading' && (
         <div>
@@ -297,7 +361,7 @@ function LessonContent() {
               style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}
             >
               <div className="w-3.5 h-3.5 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />
-              {lang === 'es' ? 'Generando tu lección…' : 'Generating your lesson…'}
+              {lang === 'es' ? 'Personalizando tu lección…' : 'Personalizing your lesson…'}
             </div>
           </div>
           <LoadingSkeleton />
@@ -319,7 +383,7 @@ function LessonContent() {
           <p className="text-sm text-red-600 font-mono bg-red-50 rounded-xl px-3 py-2">{errMsg}</p>
           <button
             id="btn-retry"
-            onClick={generateLesson}
+            onClick={() => generateLesson()}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-white transition-all duration-200 hover:opacity-90 active:scale-95"
             style={{ background: '#dc2626' }}
           >
@@ -345,11 +409,31 @@ function LessonContent() {
             ))}
           </div>
 
+          {/* Redis memory status banner */}
+          {saveStatus === 'saved' && (
+            <div
+              className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-sm font-semibold"
+              style={{ background: '#f0fdf4', border: '1.5px solid #a7f3d0', color: '#15803d' }}
+            >
+              <span>✅</span>
+              {lang === 'es' ? 'Lección guardada en tu camino' : 'Lesson saved to your journey'}
+            </div>
+          )}
+          {saveStatus === 'failed' && (
+            <div
+              className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-sm font-semibold"
+              style={{ background: '#fefce8', border: '1.5px solid #fde68a', color: '#92400e' }}
+            >
+              <span>⚠️</span>
+              {lang === 'es' ? 'No se pudo guardar el progreso' : 'Could not save progress'}
+            </div>
+          )}
+
           {/* Action row */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               id="btn-regenerate"
-              onClick={generateLesson}
+              onClick={() => generateLesson()}
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-95"
               style={{
                 background: 'white',
@@ -358,8 +442,21 @@ function LessonContent() {
               }}
             >
               <RefreshCw size={16} />
-              {lang === 'es' ? 'Nueva lección' : 'Regenerate Lesson'}
+              {lang === 'es' ? 'Regenerar lección' : 'Regenerate Lesson'}
             </button>
+
+            <Link
+              href="/progress"
+              id="btn-journey"
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm text-white transition-all duration-200 hover:opacity-90 active:scale-95"
+              style={{
+                background: 'linear-gradient(90deg,#8b5cf6,#6366f1)',
+                boxShadow: '0 8px 24px rgba(99,102,241,0.3)',
+              }}
+            >
+              {lang === 'es' ? 'Ver mi camino' : 'View My Journey'}
+              <ChevronRight size={16} />
+            </Link>
 
             <Link
               href="/"

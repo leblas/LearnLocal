@@ -1,29 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import NavBar from '@/components/NavBar';
 import { userProgress, communityFeed, leaderboard } from '@/lib/data';
-import { Star, Award, Flame, Users, ChevronRight, Trophy, Target, BookOpen, Zap } from 'lucide-react';
+import { Star, Award, Flame, Users, ChevronRight, Trophy, Target, BookOpen, Zap, Sparkles } from 'lucide-react';
+
+// ── Types ────────────────────────────────────────────────────────────────────
+interface FoodEntry { id: string; emoji: string; label: string; }
+interface ProgressData {
+  profile:            { learnerType: string; language: string; learningStyle: string } | null;
+  foodsLearned:       FoodEntry[];
+  lessonCount:        number;
+  streak:             { days: number };
+  nextRecommendation: FoodEntry;
+  redisConnected:     boolean;
+  error?:             string;
+}
 
 const allBadges = [
-  { id: 'local-hero', name: 'Local Hero', icon: '🏠', desc: 'Visited a local farm', earned: true },
-  { id: 'eco-warrior', name: 'Eco Warrior', icon: '🌿', desc: 'Chose 5 eco-friendly foods', earned: true },
-  { id: 'garden-guru', name: 'Garden Guru', icon: '🌱', desc: 'Grew your own food', earned: true },
-  { id: 'seed-saver', name: 'Seed Saver', icon: '🌾', desc: 'Learned about 3 food origins', earned: true },
-  { id: 'market-maven', name: 'Market Maven', icon: '🏪', desc: 'Attended a farmers market', earned: false },
-  { id: 'season-seeker', name: 'Season Seeker', icon: '📅', desc: 'Tracked seasonal foods', earned: false },
-  { id: 'pollinator-pal', name: 'Pollinator Pal', icon: '🐝', desc: 'Planted pollinator flowers', earned: false },
-  { id: 'compost-king', name: 'Compost King', icon: '♻️', desc: 'Started a compost bin', earned: false },
-];
-
-const recentLessons = [
-  { food: '🍓', name: 'Strawberry', date: 'Today', xp: 75, origin: 'Watsonville, CA' },
-  { food: '🍅', name: 'Tomato', date: 'Yesterday', xp: 75, origin: 'San Joaquin Valley, CA' },
-  { food: '🍎', name: 'Apple', date: '3 days ago', xp: 75, origin: 'Sonoma County, CA' },
-  { food: '🥕', name: 'Carrot', date: '1 week ago', xp: 50, origin: 'Salinas Valley, CA' },
-  { food: '🌽', name: 'Corn', date: '1 week ago', xp: 50, origin: 'Central Valley, CA' },
+  { id: 'local-hero',    name: 'Local Hero',    icon: '🏠', desc: 'Visited a local farm',         earned: true  },
+  { id: 'eco-warrior',   name: 'Eco Warrior',   icon: '🌿', desc: 'Chose 5 eco-friendly foods',    earned: true  },
+  { id: 'garden-guru',   name: 'Garden Guru',   icon: '🌱', desc: 'Grew your own food',            earned: true  },
+  { id: 'seed-saver',    name: 'Seed Saver',    icon: '🌾', desc: 'Learned about 3 food origins',  earned: true  },
+  { id: 'market-maven',  name: 'Market Maven',  icon: '🏪', desc: 'Attended a farmers market',     earned: false },
+  { id: 'season-seeker', name: 'Season Seeker', icon: '📅', desc: 'Tracked seasonal foods',         earned: false },
+  { id: 'pollinator-pal',name: 'Pollinator Pal',icon: '🐝', desc: 'Planted pollinator flowers',     earned: false },
+  { id: 'compost-king',  name: 'Compost King',  icon: '♻️', desc: 'Started a compost bin',          earned: false },
 ];
 
 type Tab = 'progress' | 'community' | 'leaderboard';
@@ -31,6 +35,36 @@ type Tab = 'progress' | 'community' | 'leaderboard';
 export default function ProgressPage() {
   const [activeTab, setActiveTab] = useState<Tab>('progress');
   const levelPct = ((userProgress.xp - 200) / (userProgress.nextLevelXp - 200)) * 100;
+
+  // ── Redis memory state ────────────────────────────────────────────────────
+  const [progressData, setProgressData] = useState<ProgressData | null>(null);
+  const [redisLoading, setRedisLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/get-progress')
+      .then((r) => r.json())
+      .then((d) => setProgressData(d))
+      .catch(() => setProgressData(null))
+      .finally(() => setRedisLoading(false));
+  }, []);
+
+  const ageLabelMap: Record<string, string> = {
+    kid: 'Kid 🧒', student: 'Student 🎒', adult: 'Adult 🧑',
+  };
+  const langLabelMap: Record<string, string> = {
+    English: '🇺🇸 English', Spanish: '🇲🇽 Spanish',
+  };
+  const styleLabelMap: Record<string, string> = {
+    story: '📖 Story', visual: '👁️ Visual', quick: '⚡ Quick Facts',
+  };
+
+  function journeyLessonUrl(foodId: string): string {
+    const p = progressData?.profile;
+    const age = p?.learnerType ?? 'student';
+    const langParam = p?.language === 'Spanish' ? 'es' : 'en';
+    const style = p?.learningStyle ?? 'story';
+    return `/lesson?food=${foodId}&age=${age}&lang=${langParam}&style=${style}`;
+  }
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'progress', label: 'My Progress', icon: <Target size={15} /> },
@@ -48,7 +82,7 @@ export default function ProgressPage() {
           <h1 className="text-3xl font-bold text-stone-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
             Your <span className="gradient-text">Journey</span>
           </h1>
-          <p className="text-stone-500 text-sm">Track your food discoveries and community impact</p>
+          <p className="text-stone-500 text-sm">Your personalized food learning journey</p>
         </div>
 
         {/* Profile / XP Card */}
@@ -119,7 +153,7 @@ export default function ProgressPage() {
         {/* Stats Strip */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: BookOpen, label: 'Lessons', value: userProgress.lessonsCompleted, color: 'text-blue-500', bg: 'bg-blue-50' },
+            { icon: BookOpen, label: 'Lessons', value: progressData?.lessonCount ?? userProgress.lessonsCompleted, color: 'text-blue-500', bg: 'bg-blue-50' },
             { icon: Award, label: 'Badges', value: userProgress.badgesEarned.length, color: 'text-amber-500', bg: 'bg-amber-50' },
             { icon: Zap, label: 'Actions Done', value: 3, color: 'text-emerald-500', bg: 'bg-emerald-50' },
           ].map(({ icon: Icon, label, value, color, bg }) => (
@@ -160,6 +194,97 @@ export default function ProgressPage() {
             {/* Progress Tab */}
             {activeTab === 'progress' && (
               <div className="space-y-5">
+
+                {/* ── Redis Memory Card ─────────────────────────────── */}
+                <div
+                  className="rounded-2xl p-4 space-y-3"
+                  style={{ background: '#f5f3ff', border: '1.5px solid #ddd6fe' }}
+                >
+                  <h3 className="font-bold text-violet-800 flex items-center gap-2 text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    <Sparkles size={15} className="text-violet-500" />
+                    Your Learner Profile
+                    {progressData?.redisConnected && (
+                      <span className="ml-auto text-xs bg-violet-100 text-violet-600 font-semibold px-2 py-0.5 rounded-full">
+                        ✓ Redis live
+                      </span>
+                    )}
+                  </h3>
+
+                  {redisLoading ? (
+                    <div className="animate-pulse space-y-2">
+                      <div className="h-3 w-1/2 rounded bg-violet-100" />
+                      <div className="h-3 w-2/3 rounded bg-violet-100" />
+                    </div>
+                  ) : progressData ? (
+                    <div className="space-y-3">
+                      {!progressData.redisConnected && progressData.error && (
+                        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-2">
+                          {progressData.error}
+                        </p>
+                      )}
+
+                      {progressData.profile && (
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: '#fff0f5', color: '#be185d', border: '1px solid #fecdd3' }}>
+                            {ageLabelMap[progressData.profile.learnerType] ?? progressData.profile.learnerType}
+                          </span>
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}>
+                            {langLabelMap[progressData.profile.language] ?? progressData.profile.language}
+                          </span>
+                          {progressData.profile.learningStyle && (
+                            <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: '#f5f3ff', color: '#6d28d9', border: '1px solid #ddd6fe' }}>
+                              {styleLabelMap[progressData.profile.learningStyle] ?? progressData.profile.learningStyle}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {progressData.foodsLearned.length === 0 && (
+                        <div className="text-center py-4 px-3 rounded-xl" style={{ background: '#fafaf9', border: '1px dashed #d6d3d1' }}>
+                          <p className="text-sm text-stone-500">No foods explored yet.</p>
+                          <Link href="/" className="text-xs font-bold text-orange-600 hover:text-orange-700 mt-2 inline-block">
+                            Start your first lesson →
+                          </Link>
+                        </div>
+                      )}
+
+                      {progressData.foodsLearned.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-violet-600 mb-1.5">Foods Explored</p>
+                          <div className="flex flex-wrap gap-2">
+                            {progressData.foodsLearned.map((f) => (
+                              <span key={f.id} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #a7f3d0' }}>
+                                {f.emoji} {f.label}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Flame size={14} className="text-orange-500" />
+                          <span className="text-xs font-bold text-stone-700">{progressData.streak.days}-day streak</span>
+                          {progressData.lessonCount > 0 && (
+                            <span className="text-xs text-stone-500">· {progressData.lessonCount} lesson{progressData.lessonCount !== 1 ? 's' : ''}</span>
+                          )}
+                        </div>
+                        <Link
+                          href={journeyLessonUrl(progressData.nextRecommendation.id)}
+                          className="text-xs font-bold text-violet-600 hover:text-violet-700 flex items-center gap-1"
+                        >
+                          Try {progressData.nextRecommendation.emoji} {progressData.nextRecommendation.label} next
+                          <ChevronRight size={12} />
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-violet-500">
+                      Demo memory unavailable — using local session.
+                    </p>
+                  )}
+                </div>
+
                 {/* Badges Section */}
                 <div>
                   <h3 className="font-bold text-stone-700 mb-3 flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -184,27 +309,35 @@ export default function ProgressPage() {
                   </div>
                 </div>
 
-                {/* Recent Lessons */}
+                {/* Recent Journey from Redis */}
                 <div>
                   <h3 className="font-bold text-stone-700 mb-3 flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     <BookOpen size={16} className="text-blue-500" />
-                    Recent Lessons
+                    Recent Journey
                   </h3>
-                  <div className="space-y-2">
-                    {recentLessons.map((lesson, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl hover:bg-orange-50 transition-colors group cursor-pointer">
-                        <span className="text-2xl">{lesson.food}</span>
-                        <div className="flex-1">
-                          <div className="font-semibold text-stone-800 text-sm">{lesson.name}</div>
-                          <div className="text-xs text-stone-400">{lesson.origin} · {lesson.date}</div>
-                        </div>
-                        <div className="flex items-center gap-1 text-amber-600 font-bold text-xs bg-amber-50 px-2 py-1 rounded-full">
-                          <Star size={10} className="fill-amber-400 text-amber-400" />
-                          +{lesson.xp}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {progressData && progressData.foodsLearned.length > 0 ? (
+                    <div className="space-y-2">
+                      {progressData.foodsLearned.map((f) => (
+                        <Link
+                          key={f.id}
+                          href={journeyLessonUrl(f.id)}
+                          className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl hover:bg-orange-50 transition-colors"
+                        >
+                          <span className="text-2xl">{f.emoji}</span>
+                          <div className="flex-1">
+                            <div className="font-semibold text-stone-800 text-sm">{f.label}</div>
+                            <div className="text-xs text-stone-400">Explored · tap to revisit</div>
+                          </div>
+                          <ChevronRight size={14} className="text-stone-400" />
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 px-4 rounded-xl bg-stone-50 border border-dashed border-stone-200">
+                      <p className="text-sm text-stone-500">Your food journey starts here.</p>
+                      <Link href="/" className="text-xs font-bold text-orange-600 mt-2 inline-block">Explore your first food →</Link>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -343,6 +476,10 @@ export default function ProgressPage() {
             })}
           </div>
         </div>
+
+        <p className="text-center text-sm text-stone-500 font-medium italic mt-6">
+          Learning one food at a time.
+        </p>
       </div>
     </div>
   );

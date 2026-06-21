@@ -1,0 +1,58 @@
+[
+  {
+    "id": "foodhub_salinas",
+    "name": "Salinas Valley Food Hub",
+    "type": "food hub",
+    "description": "A regional aggregation and distribution center in Salinas, CA that connects 40+ small and mid-sized farms to schools, hospitals, and restaurants within a 100-mile radius. The hub provides cold-chain logistics, food-safety certification support, and bulk purchasing access that individual small farms cannot offer alone.",
+    "communityAction": "Contact the Salinas Valley Food Hub to find out which local restaurants and institutions they supply — then choose to eat or shop at those locations to support the network."
+  },
+  {
+    "id": "foodhub_central_coast",
+    "name": "Central Coast Food Hub",
+    "type": "food hub",
+    "description": "A cooperative-owned hub serving Santa Cruz and Monterey counties, specializing in aggregating certified-organic produce from family farms under 200 acres. They deliver weekly CSA (Community Supported Agriculture) boxes directly to households, reducing packaging waste and eliminating retail markup.",
+    "communityAction": "Sign up for a weekly CSA share from the Central Coast Food Hub to receive a box of seasonal vegetables directly from local farms — no middleman, no wasted packaging."
+  },
+  {
+    "id": "market_ferry_plaza",
+    "name": "Ferry Plaza Farmers Market",
+    "type": "farmers market",
+    "description": "Held every Tuesday and Saturday in San Francisco's Embarcadero, Ferry Plaza Farmers Market hosts over 100 vendors including certified farmers, artisan food producers, and prepared-food stands. All farmers must be within 150 miles of the market and must grow or produce what they sell. Market proceeds fund agricultural education and urban farming programs.",
+    "communityAction": "Visit a local farmers market this weekend. Talk to one farmer about what they are growing and why. Buying directly at the market means the farmer keeps nearly 100% of the sale price."
+  },
+  {
+    "id": "market_hollywood",
+    "name": "Hollywood Farmers Market",
+    "type": "farmers market",
+    "description": "A year-round Sunday market in Los Angeles featuring 150+ vendors from Southern California farms. The market operates a SNAP/EBT matching program that doubles the purchasing power of food-assistance recipients when buying fresh produce, making local food more accessible to lower-income households.",
+    "communityAction": "Spread the word about SNAP/EBT matching programs at farmers markets in your area — many people who qualify don't know they can get double value for fresh vegetables and fruit."
+  },
+  {
+    "id": "foodbank_sf_marin",
+    "name": "San Francisco-Marin Food Bank",
+    "type": "food bank",
+    "description": "One of the largest food banks in the U.S., distributing over 50 million pounds of food annually to more than 140,000 people each week across San Francisco and Marin County. They run a Farm to Food Bank program that rescues surplus fresh produce directly from local farms that would otherwise go unharvested.",
+    "communityAction": "Volunteer at your regional food bank on a fresh-produce sort shift — you'll help redirect locally grown food to families who need it, and learn about regional food-access gaps firsthand."
+  },
+  {
+    "id": "foodbank_second_harvest",
+    "name": "Second Harvest of Silicon Valley",
+    "type": "food bank",
+    "description": "Serves over 500,000 people annually across Santa Clara and San Mateo counties. Their Farm Fresh program purchases surplus local produce at below-market rates, supports farm workers during off-peak periods, and provides fresh fruits and vegetables to food-insecure households who rarely have access to fresh produce through traditional food assistance.",
+    "communityAction": "Donate to your local food bank's Fresh Produce Fund — $10 typically provides one family with a week of fresh fruits and vegetables sourced from regional farms."
+  },
+  {
+    "id": "garden_la_mesa",
+    "name": "La Mesa Community Garden",
+    "type": "community garden",
+    "description": "A 2-acre community garden in Oakland's Fruitvale district with 80 individual plots, a shared orchard, and a composting program. The garden prioritizes lease access to recent immigrants and low-income households, preserving cultural foodways and traditional seed varieties that are not available in commercial markets.",
+    "communityAction": "Apply for a plot at a community garden near you — waitlists can be long, so add your name now. Meanwhile, offer to help an existing plot-holder with watering or weeding in exchange for fresh produce."
+  },
+  {
+    "id": "garden_sunol_agpark",
+    "name": "Sunol AgPark",
+    "type": "community garden",
+    "description": "A 5-acre incubator farm in Sunol, CA, managed by the non-profit Sustainable Agriculture Education (SAGE). The park provides affordable leases to beginning and immigrant farmers, technical training in sustainable practices, and shared infrastructure (irrigation, cold storage, tools). Alumni farmers have launched over a dozen successful small farm businesses.",
+    "communityAction": "Support a beginning farmer by shopping at their booth at a local market, subscribing to their CSA, or volunteering a day of labor during planting or harvest season."
+  }
+]

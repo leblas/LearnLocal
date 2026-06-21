@@ -8,7 +8,7 @@ import { userProgress } from '@/lib/data';
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/lesson', label: 'Lessons', icon: BookOpen },
-  { href: '/progress', label: 'Progress', icon: Users },
+  { href: '/progress', label: 'Journey', icon: Users },
 ];
 
 export default function NavBar() {

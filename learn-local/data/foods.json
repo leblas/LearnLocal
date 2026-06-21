@@ -1,0 +1,82 @@
+[
+  {
+    "id": "strawberry",
+    "name": "Strawberry",
+    "emoji": "🍓",
+    "foodStory": "Strawberries grown in California's Pajaro Valley (Watsonville) benefit from cool coastal mornings and warm afternoons, producing exceptionally sweet berries. California supplies roughly 88% of all U.S. strawberries. Local farms typically pick berries in the early morning and have them at market the same day, ensuring peak freshness and nutrition.",
+    "sustainability": "Local strawberries cut transportation emissions by up to 85% versus imports shipped from Mexico or Chile. Certified-organic California fields avoid synthetic pesticides and maintain pollinator habitat for wild bees. Strawberries are a high-yield crop per acre, making them one of the most resource-efficient fruits in the region.",
+    "seasonality": "Peak season: April – June in coastal California. Shoulder season: March and July.",
+    "funFacts": [
+      "A single strawberry has about 200 seeds — the only fruit with seeds on its exterior.",
+      "Strawberries belong to the rose family (Rosaceae), the same family as apples and almonds.",
+      "California strawberry fields are replanted every year; most farms use raised beds to improve drainage and reduce soil pathogens.",
+      "One cup of strawberries delivers more Vitamin C than a medium orange."
+    ],
+    "communityActions": [
+      "Visit a u-pick strawberry farm in Watsonville or your nearest coastal county.",
+      "Buy strawberries at your local farmers market instead of a supermarket to keep $0.78 of every dollar in your regional economy.",
+      "Make strawberry jam with peak-season berries and share jars with neighbors.",
+      "Ask your school or workplace to source strawberries from a certified local farm."
+    ]
+  },
+  {
+    "id": "tomato",
+    "name": "Tomato",
+    "emoji": "🍅",
+    "foodStory": "The tomato originated in the Andes of South America and reached California in the 1800s. Today California's San Joaquin Valley produces more than 95% of U.S. processed tomatoes and a large share of fresh market tomatoes. Your local tomato is likely grown within 30–50 miles of where you live, vine-ripened under the Central Valley sun and harvested within 24–48 hours of purchase.",
+    "sustainability": "Tomatoes are one of the most eco-efficient crops: high yield per acre, minimal packaging needed for local sales, and excellent candidates for crop rotation that restores soil nitrogen. Drip-irrigation systems used by modern local farms reduce water use by 30–50% compared to traditional flood methods. Carbon footprint for a locally grown tomato is roughly 0.4 kg CO₂e per kg — about one-quarter that of imported winter tomatoes.",
+    "seasonality": "Peak season: July – September in Central California. Greenhouse tomatoes available year-round from some local farms.",
+    "funFacts": [
+      "Botanically, the tomato is a berry — a fruit that develops from the ovary of a flower.",
+      "There are more than 10,000 documented tomato varieties worldwide, ranging from tiny currant tomatoes to 3-lb beefsteaks.",
+      "Tomatoes are approximately 95% water, making them naturally hydrating.",
+      "Cooking tomatoes increases the bioavailability of lycopene, a carotenoid linked to reduced cancer risk."
+    ],
+    "communityActions": [
+      "Start a tomato seedling on your windowsill using free heirloom seeds from your local library seed exchange.",
+      "Attend a tomato-tasting event at a nearby farmers market in peak summer.",
+      "Support a farm-to-school program by donating extra garden tomatoes to a local school kitchen.",
+      "Learn to make and preserve homemade salsa or tomato sauce to extend the local harvest into winter."
+    ]
+  },
+  {
+    "id": "apple",
+    "name": "Apple",
+    "emoji": "🍎",
+    "foodStory": "Apples thrive in California's Sonoma, Lake, and El Dorado counties, where warm days and cool nights build the sugars and acids that define great apple flavor. Heritage orchards in these regions have been producing fruit for over a century; some individual trees still bear fruit after 80 years. Most local varieties are harvested August – November and held in controlled-atmosphere cold storage that preserves freshness for months without artificial preservatives.",
+    "sustainability": "Local apples require no refrigerated long-haul shipping, saving roughly 0.3 kg CO₂ per kg of fruit compared to apples imported from Washington State or New Zealand. Apple orchards provide year-round habitat for birds, native pollinators, and beneficial predatory insects. Integrated Pest Management (IPM) — the dominant practice among local orchards — reduces synthetic pesticide use by 60–80% versus conventional monoculture.",
+    "seasonality": "Peak season: August – November. Cold-stored local apples available through April. Best fresh flavor: September – October.",
+    "funFacts": [
+      "There are more than 7,500 named apple varieties; grocery stores typically stock fewer than 15.",
+      "Apples float in water because roughly 25% of their volume is air-filled cells.",
+      "It takes four to five years for a newly planted apple tree to produce its first fruit.",
+      "Pressing approximately 36 medium apples yields one gallon of fresh cider."
+    ],
+    "communityActions": [
+      "Attend an apple-pressing workshop at a local orchard or community center in October.",
+      "Join a gleaning program that harvests surplus orchard fruit for food banks.",
+      "Buy a mixed crate of heirloom apple varieties from a farmstand and compare flavors with your household.",
+      "Plant a dwarf apple tree in your yard or a community garden plot — many varieties thrive in containers."
+    ]
+  },
+  {
+    "id": "lettuce",
+    "name": "Lettuce",
+    "emoji": "🥬",
+    "foodStory": "California's Salinas Valley — nicknamed the 'Salad Bowl of the World' — produces more than 70% of all lettuce grown in the United States. The valley's daily marine-layer fog keeps temperatures mild and reduces irrigation demand, creating ideal growing conditions year-round. Local lettuce is typically cut in the early morning hours, cooled immediately, and can reach a farmers market or store shelf within hours of harvest.",
+    "sustainability": "Lettuce has one of the lowest carbon footprints of any food crop: approximately 0.3 kg CO₂e per kg. It requires far less water than grain or meat — roughly 15 gallons per pound — and most local farms use drip or overhead precision irrigation. Growing your own lettuce in a container requires zero food-miles and reduces plastic packaging waste from pre-washed bagged salads.",
+    "seasonality": "Available year-round locally in California. Best flavor: March – May and September – November when temperatures are mild. Summer heat can cause bolting (premature flowering), which makes leaves bitter.",
+    "funFacts": [
+      "Ancient Egyptians cultivated lettuce more than 4,500 years ago, primarily for the oil-rich seeds.",
+      "Romaine lettuce contains 17 times more Vitamin A than iceberg lettuce.",
+      "Lettuce is approximately 96% water — one of the most hydrating vegetables.",
+      "Cut-and-come-again lettuce varieties can be harvested repeatedly from the same plant over 6–8 weeks."
+    ],
+    "communityActions": [
+      "Grow a pot of cut-and-come-again lettuce on a sunny windowsill or balcony — ready to harvest in 3–4 weeks.",
+      "Skip pre-washed bagged lettuce (packaged in plastic) and buy a whole head from a farmers market.",
+      "Donate surplus garden lettuce to a local community meal program or neighbor.",
+      "Join or start a school container garden focused on salad greens for the cafeteria."
+    ]
+  }
+]
