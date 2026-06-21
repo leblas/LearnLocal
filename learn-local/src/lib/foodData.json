@@ -1,0 +1,221 @@
+{
+  "strawberry": {
+    "id": "strawberry",
+    "name": "Strawberry",
+    "emoji": "🍓",
+
+    "foodStory": {
+      "headline": "Born on the California Coast",
+      "body": "These bright red beauties grew just 12 miles from your local farmers market! California's Pajaro Valley has the perfect coastal climate — cool mornings and warm afternoons — that makes strawberries burst with sweetness. Farmers here have been growing strawberries since the 1900s, and many families have passed the craft down through four or five generations.",
+      "farmName": "Sunrise Organic Farms",
+      "region": "Watsonville, California",
+      "country": "USA",
+      "distance": "12 miles away",
+      "harvestTime": "Picked this morning!",
+      "funFacts": [
+        "Strawberries are the only fruit with seeds on the outside — a single berry has about 200 seeds!",
+        "Strawberries belong to the rose family. Smell one closely and you'll notice the floral connection!",
+        "Ancient Romans believed strawberries could cure everything from fevers to sore throats.",
+        "It takes 2–3 weeks from flower to ripe strawberry."
+      ]
+    },
+
+    "sustainabilityNote": {
+      "headline": "One of Your Greenest Choices",
+      "carbonScore": 8,
+      "waterUsage": "1 pint uses ~24 gallons of water",
+      "seasonality": "Peak season: April – June",
+      "pesticides": "Certified organic — no synthetic pesticides",
+      "impact": "Buying local strawberries cuts transport emissions by 85% compared to imported berries. Organic growing also supports pollinator habitats, keeping bees healthy and our food supply strong.",
+      "tip": "Eat strawberries in season (spring!) for the best flavor AND the lowest environmental impact. Freeze extras to avoid food waste."
+    },
+
+    "localAction": {
+      "title": "Visit a U-Pick Strawberry Farm!",
+      "description": "Find a local u-pick farm this weekend. You'll meet the farmers, learn how strawberries grow, and pick the freshest berries straight from the plant. Many farms offer guided tours for kids and families.",
+      "icon": "🏡",
+      "difficulty": "Adventure",
+      "rewardXP": 150,
+      "steps": [
+        "Search 'u-pick strawberry farm near me' this week",
+        "Bring reusable containers to carry your haul",
+        "Ask the farmer one question about how they grow their crop",
+        "Share a photo on LearnLocal to earn bonus XP!"
+      ]
+    },
+
+    "communityConnection": {
+      "headline": "Supporting 450 Families in Your Region",
+      "jobs": 450,
+      "familyFarms": 38,
+      "localEconomyPerYear": "$2.3M",
+      "story": "Local strawberry farms in your region employ over 450 workers, many of whom are part of multi-generational farming families. When you buy local, $0.78 of every dollar stays in your community — funding schools, housing, and small businesses.",
+      "badges": ["Local Hero", "Eco Warrior", "Season Seeker"]
+    }
+  },
+
+  "tomato": {
+    "id": "tomato",
+    "name": "Tomato",
+    "emoji": "🍅",
+
+    "foodStory": {
+      "headline": "From the Andes to Your Table",
+      "body": "Originally from the Andes mountains of South America, tomatoes have found a second home in California's sunny San Joaquin Valley. Your tomato was grown just 30 miles away under the warm Central Valley sun! Tomato cultivation here dates back over a century and remains one of the most important crops for local economies.",
+      "farmName": "Valley Sun Growers",
+      "region": "San Joaquin Valley, California",
+      "country": "USA",
+      "distance": "30 miles away",
+      "harvestTime": "Vine-ripened yesterday",
+      "funFacts": [
+        "Tomatoes are technically a fruit (botanically a berry!), but are used as a vegetable in cooking.",
+        "There are over 10,000 known tomato varieties worldwide.",
+        "The world's largest tomato weighed over 10 pounds!",
+        "Tomatoes are about 95% water."
+      ]
+    },
+
+    "sustainabilityNote": {
+      "headline": "A Top Eco-Friendly Pick",
+      "carbonScore": 9,
+      "waterUsage": "1 pound uses ~22 gallons of water",
+      "seasonality": "Peak season: July – September",
+      "pesticides": "Low-spray with beneficial insect release",
+      "impact": "Locally grown tomatoes are one of the most eco-friendly choices you can make. They're high-yield, support soil health when rotated properly, and have minimal packaging compared to imported varieties shipped in plastic.",
+      "tip": "Never refrigerate fresh tomatoes — it kills their flavor! Keep them on the counter and use within a week."
+    },
+
+    "localAction": {
+      "title": "Grow Your Own Tomato Plant",
+      "description": "Start a tomato plant from seed on your windowsill! Most libraries have seed libraries where you can get free heirloom tomato seeds. Watching a tomato go from tiny seed to full fruit is one of the most rewarding things you can do.",
+      "icon": "🌱",
+      "difficulty": "Easy",
+      "rewardXP": 80,
+      "steps": [
+        "Visit your local library's seed library or garden center",
+        "Plant in a pot with good drainage near a sunny window",
+        "Water every 2 days and watch it grow",
+        "Log your progress in the LearnLocal app for XP rewards"
+      ]
+    },
+
+    "communityConnection": {
+      "headline": "Woven Into Central Valley Culture",
+      "jobs": 320,
+      "familyFarms": 15,
+      "localEconomyPerYear": "$3.1M",
+      "story": "Tomato farming is woven into the cultural fabric of Central Valley communities. Many families trace their heritage to farmworker families who helped build California's agricultural legacy. Buying local tomatoes directly supports these families and preserves a way of life.",
+      "badges": ["Garden Guru", "Vitamin C Champ", "Seed Saver"]
+    }
+  },
+
+  "lettuce": {
+    "id": "lettuce",
+    "name": "Lettuce",
+    "emoji": "🥬",
+
+    "foodStory": {
+      "headline": "Cool-Weather Gold from the Salinas Valley",
+      "body": "Known as the 'Salad Bowl of the World,' California's Salinas Valley produces more than 70% of all the lettuce grown in the United States. The valley's fog-cooled air and rich sandy loam soil create the ideal growing environment for crisp, flavorful heads of lettuce year-round. Your bunch was harvested just 20 miles away early this morning.",
+      "farmName": "Green Valley Leaf Farm",
+      "region": "Salinas Valley, California",
+      "country": "USA",
+      "distance": "20 miles away",
+      "harvestTime": "Cut this morning at 5 AM",
+      "funFacts": [
+        "Lettuce is one of the oldest cultivated vegetables — ancient Egyptians grew it over 4,500 years ago.",
+        "Romaine lettuce has 17× more Vitamin A than iceberg lettuce.",
+        "Lettuce is about 96% water, making it incredibly hydrating.",
+        "It takes only 30–60 days from seed to harvest for most lettuce varieties."
+      ]
+    },
+
+    "sustainabilityNote": {
+      "headline": "Light Footprint, Big Nutrition",
+      "carbonScore": 9,
+      "waterUsage": "1 pound uses ~15 gallons of water — one of the lowest of any crop",
+      "seasonality": "Available year-round locally; peak flavor: March – May & Sept – Nov",
+      "pesticides": "Integrated Pest Management — most farms use minimal or no spray",
+      "impact": "Lettuce has one of the lowest carbon footprints of any food. Growing it locally eliminates the need for refrigerated long-haul trucks and reduces packaging waste significantly.",
+      "tip": "Store lettuce in a damp paper towel inside a container in the fridge. It'll stay crisp for up to 10 days, cutting down on food waste."
+    },
+
+    "localAction": {
+      "title": "Start a Salad Container Garden",
+      "description": "Lettuce is one of the easiest crops to grow at home! A single large pot on a balcony or patio is enough. Cut-and-come-again varieties let you harvest leaves repeatedly from the same plant all season long.",
+      "icon": "🪴",
+      "difficulty": "Easy",
+      "rewardXP": 70,
+      "steps": [
+        "Grab a loose-leaf 'cut and come again' seed packet from a garden center",
+        "Fill a pot (at least 6 inches deep) with potting mix",
+        "Scatter seeds, water lightly, and place in a spot with morning sun",
+        "Harvest outer leaves in 3–4 weeks — the plant keeps growing!"
+      ]
+    },
+
+    "communityConnection": {
+      "headline": "A Valley Built on Leafy Greens",
+      "jobs": 510,
+      "familyFarms": 44,
+      "localEconomyPerYear": "$4.2M",
+      "story": "The Salinas Valley lettuce industry supports thousands of farmworker families who have called the region home for generations. Local lettuce co-ops reinvest profits into worker housing, childcare programs, and community health clinics — meaning every head of lettuce you buy locally makes a direct social impact.",
+      "badges": ["Green Thumb", "Hydration Hero", "Salinas Supporter"]
+    }
+  },
+
+  "apple": {
+    "id": "apple",
+    "name": "Apple",
+    "emoji": "🍎",
+
+    "foodStory": {
+      "headline": "Sweet-Tart Crunchers from Sonoma Hills",
+      "body": "These crisp apples come from the rolling hills of Sonoma County, just 45 miles away! The region's warm days and cool nights are perfect for developing that signature sweet-tart crunch. Heritage orchards here have been producing fruit for over a century, with some individual trees still bearing fruit after 80 years.",
+      "farmName": "Heritage Orchard Co.",
+      "region": "Sonoma County, California",
+      "country": "USA",
+      "distance": "45 miles away",
+      "harvestTime": "Harvested 2 days ago",
+      "funFacts": [
+        "There are over 7,500 varieties of apples grown worldwide!",
+        "Apple trees can live for 100 years or more.",
+        "Apples float in water because they're 25% air.",
+        "It takes about 36 apples to make one gallon of cider."
+      ]
+    },
+
+    "sustainabilityNote": {
+      "headline": "Year-Round Local Fruit Done Right",
+      "carbonScore": 7,
+      "waterUsage": "1 apple uses ~18 gallons of water",
+      "seasonality": "Peak season: August – November; cold-stored local apples available through spring",
+      "pesticides": "Integrated Pest Management — minimal spray with natural predator insects",
+      "impact": "Local apples travel far fewer miles than imported varieties shipped from South America or overseas. Apple trees also provide year-round habitat for birds, bats, and beneficial insects — making orchards living ecosystems.",
+      "tip": "Store apples in the fridge to make them last up to 6 weeks — reducing food waste. Keep them away from other produce, as apples emit ethylene gas that speeds ripening."
+    },
+
+    "localAction": {
+      "title": "Make Fresh Apple Cider at Home",
+      "description": "Grab a bag of local apples and learn to press fresh apple cider. Many community centers, libraries, and farms host fall cider-making workshops. Even without a press, blending and straining apples makes a delicious fresh juice.",
+      "icon": "🧃",
+      "difficulty": "Medium",
+      "rewardXP": 100,
+      "steps": [
+        "Buy a bag of mixed local apple varieties at a farmers market",
+        "Look up a cider-making workshop near you, or follow an online tutorial",
+        "Invite a friend or family member to make it a shared experience",
+        "Bottle and label your cider — share a photo to earn bonus XP!"
+      ]
+    },
+
+    "communityConnection": {
+      "headline": "Harvest Season Brings the Whole Town Together",
+      "jobs": 280,
+      "familyFarms": 22,
+      "localEconomyPerYear": "$1.8M",
+      "story": "Apple orchards in Sonoma County have been family-owned for generations. Harvest season (September–October) brings the whole community together for festivals, cider pressing, and school field trips. Local orchards also partner with food banks to donate surplus fruit — ensuring no apple goes to waste.",
+      "badges": ["Orchard Explorer", "Tradition Keeper", "Crunch Champion"]
+    }
+  }
+}
