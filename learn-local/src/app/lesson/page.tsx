@@ -1,392 +1,418 @@
 'use client';
 
-import { Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { Suspense, useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import NavBar from '@/components/NavBar';
-import { foodDatabase } from '@/lib/data';
 import {
-  MapPin, Leaf, Users, Zap, ArrowLeft, Star, Award,
-  Droplets, Calendar, CheckCircle2, ChevronRight, Info
+  ArrowLeft, RefreshCw, MapPin, Leaf, Users, Zap, Star,
+  ChevronRight, BookOpen, Sparkles,
 } from 'lucide-react';
 
-function CarbonMeter({ score }: { score: number }) {
-  const pct = (score / 10) * 100;
-  const color = score >= 7 ? '#10b981' : score >= 4 ? '#f59e0b' : '#ef4444';
-  const label = score >= 7 ? 'Excellent' : score >= 4 ? 'Good' : 'Needs Work';
+// ── Types ────────────────────────────────────────────────────────────────────
+interface LessonResult {
+  foodStory: string;
+  learn: string;
+  impact: string;
+  takeAction: string;
+  funFact: string;
+}
 
+type Status = 'idle' | 'loading' | 'success' | 'error';
+
+// ── Static maps ───────────────────────────────────────────────────────────────
+const foodMeta: Record<string, { emoji: string; label: string; esLabel: string; accent: string; lightBg: string }> = {
+  strawberry: { emoji: '🍓', label: 'Strawberry', esLabel: 'Fresa',    accent: '#e11d48', lightBg: '#fff1f2' },
+  apple:      { emoji: '🍎', label: 'Apple',      esLabel: 'Manzana',  accent: '#dc2626', lightBg: '#fef2f2' },
+  tomato:     { emoji: '🍅', label: 'Tomato',     esLabel: 'Jitomate', accent: '#ea580c', lightBg: '#fff7ed' },
+  lettuce:    { emoji: '🥬', label: 'Lettuce',    esLabel: 'Lechuga',  accent: '#16a34a', lightBg: '#f0fdf4' },
+};
+
+const ageMeta: Record<string, { emoji: string; en: string; es: string }> = {
+  kid:     { emoji: '🧒', en: 'Kid',      es: 'Niño/a'     },
+  student: { emoji: '🎒', en: 'Student',  es: 'Estudiante' },
+  adult:   { emoji: '🧑', en: 'Adult',    es: 'Adulto/a'   },
+};
+
+const langMeta: Record<string, { flag: string; label: string }> = {
+  en: { flag: '🇺🇸', label: 'English' },
+  es: { flag: '🇲🇽', label: 'Español' },
+};
+
+const cards = [
+  {
+    key: 'foodStory' as const,
+    icon: MapPin,
+    color: '#f97316',
+    bg: '#fff7ed',
+    border: '#fed7aa',
+    en: { title: 'Food Story',   sub: 'Where it comes from'           },
+    es: { title: 'Historia',     sub: 'De dónde viene'                },
+  },
+  {
+    key: 'learn' as const,
+    icon: BookOpen,
+    color: '#8b5cf6',
+    bg: '#f5f3ff',
+    border: '#ddd6fe',
+    en: { title: 'Learn',        sub: 'Key concept'                   },
+    es: { title: 'Aprende',      sub: 'Concepto clave'                },
+  },
+  {
+    key: 'impact' as const,
+    icon: Leaf,
+    color: '#10b981',
+    bg: '#ecfdf5',
+    border: '#a7f3d0',
+    en: { title: 'Impact',       sub: 'Environmental & community'     },
+    es: { title: 'Impacto',      sub: 'Medio ambiente y comunidad'    },
+  },
+  {
+    key: 'takeAction' as const,
+    icon: Zap,
+    color: '#f59e0b',
+    bg: '#fffbeb',
+    border: '#fde68a',
+    en: { title: 'Take Action',  sub: 'Something you can do today'   },
+    es: { title: 'Actúa',        sub: 'Algo que puedes hacer hoy'    },
+  },
+  {
+    key: 'funFact' as const,
+    icon: Star,
+    color: '#ec4899',
+    bg: '#fdf2f8',
+    border: '#fbcfe8',
+    en: { title: 'Fun Fact',     sub: 'Did you know?'                 },
+    es: { title: 'Dato curioso', sub: '¿Sabías que…?'                 },
+  },
+];
+
+// ── Loading skeleton ──────────────────────────────────────────────────────────
+function LoadingSkeleton() {
   return (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center text-sm">
-        <span className="font-semibold text-stone-600">Eco Score</span>
-        <span className="font-bold" style={{ color }}>{label} · {score}/10</span>
-      </div>
-      <div className="h-3 bg-stone-100 rounded-full overflow-hidden">
+    <div className="space-y-4 animate-pulse">
+      {[...Array(5)].map((_, i) => (
         <div
-          className="h-full rounded-full transition-all duration-1000"
-          style={{
-            width: `${pct}%`,
-            background: `linear-gradient(90deg, ${color}88, ${color})`,
-          }}
-        />
-      </div>
+          key={i}
+          className="rounded-2xl p-5"
+          style={{ background: '#f5f5f4', border: '1px solid #e7e5e4' }}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-stone-200" />
+            <div className="space-y-1.5">
+              <div className="h-3.5 w-24 rounded bg-stone-200" />
+              <div className="h-2.5 w-16 rounded bg-stone-100" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-3 w-full rounded bg-stone-200" />
+            <div className="h-3 w-5/6 rounded bg-stone-200" />
+            <div className="h-3 w-4/6 rounded bg-stone-200" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
-function LessonContent({ foodId }: { foodId: string }) {
-  const router = useRouter();
-  const lesson = foodDatabase[foodId];
-
-  if (!lesson) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <div className="text-6xl">🤔</div>
-        <h2 className="text-xl font-bold text-stone-700">Food not found</h2>
-        <p className="text-stone-500">We don't have data for that food yet!</p>
-        <Link href="/" className="text-orange-500 font-semibold hover:underline flex items-center gap-1">
-          <ArrowLeft size={16} /> Go back home
-        </Link>
-      </div>
-    );
-  }
-
-  const difficultyColors: Record<string, string> = {
-    Easy: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    Medium: 'bg-amber-100 text-amber-700 border-amber-200',
-    Adventure: 'bg-purple-100 text-purple-700 border-purple-200',
-  };
+// ── Lesson card ───────────────────────────────────────────────────────────────
+function LessonCard({
+  cardDef,
+  text,
+  lang,
+  visible,
+  delay,
+}: {
+  cardDef: typeof cards[number];
+  text: string;
+  lang: string;
+  visible: boolean;
+  delay: number;
+}) {
+  const { icon: Icon, color, bg, border } = cardDef;
+  const lbl = lang === 'es' ? cardDef.es : cardDef.en;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 pb-16 space-y-6">
-      {/* Back + Breadcrumb */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors"
+    <div
+      className="rounded-2xl p-5 transition-all duration-500"
+      style={{
+        background: bg,
+        border: `1.5px solid ${border}`,
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(16px)',
+        transitionDelay: `${delay}ms`,
+      }}
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: `${color}18` }}
         >
-          <ArrowLeft size={16} />
-          Back
-        </button>
-        <span className="text-stone-300">·</span>
-        <span className="text-sm text-stone-400">Lesson Result</span>
-      </div>
-
-      {/* Hero Card */}
-      <div className="relative overflow-hidden rounded-3xl shadow-2xl" style={{ background: 'linear-gradient(135deg, #fff7ed, #fef3c7)' }}>
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-orange-400 translate-x-1/3 -translate-y-1/3" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-rose-400 -translate-x-1/3 translate-y-1/3" />
+          <Icon size={18} style={{ color }} />
         </div>
-        <div className="relative p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-          {/* Food emoji + Image */}
-          <div className="relative flex-shrink-0">
-            <div className="w-28 h-28 rounded-2xl overflow-hidden shadow-xl">
-              <Image
-                src="/strawberry.png"
-                alt={lesson.name}
-                width={112}
-                height={112}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md text-2xl">
-              {lesson.emoji}
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">New Lesson!</span>
-              {lesson.badges.map((badge) => (
-                <span key={badge} className="bg-white/70 backdrop-blur text-stone-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-stone-200 flex items-center gap-1">
-                  <Award size={10} className="text-amber-500" />
-                  {badge}
-                </span>
-              ))}
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-stone-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              {lesson.name}
-            </h1>
-            <div className="flex items-center gap-2 text-sm text-stone-600">
-              <MapPin size={14} className="text-orange-500" />
-              <span className="font-semibold">{lesson.origin.farmName}</span>
-              <span className="text-stone-400">·</span>
-              <span className="text-orange-600 font-medium">{lesson.origin.distance}</span>
-            </div>
-            <div className="text-sm text-emerald-600 font-semibold flex items-center gap-1.5">
-              <CheckCircle2 size={14} />
-              {lesson.origin.travelTime}
-            </div>
-          </div>
-
-          {/* XP Reward Pill */}
-          <div className="flex-shrink-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-4 text-center text-white shadow-lg">
-            <Star size={20} className="mx-auto mb-1 fill-white" />
-            <div className="text-2xl font-bold">+75</div>
-            <div className="text-xs font-medium opacity-90">XP Earned</div>
-          </div>
+        <div>
+          <p className="text-sm font-bold text-stone-800" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            {lbl.title}
+          </p>
+          <p className="text-xs text-stone-400">{lbl.sub}</p>
         </div>
       </div>
-
-      {/* Section 1: Origin Story */}
-      <section className="bg-white rounded-2xl shadow-md border border-orange-50 overflow-hidden">
-        <div className="flex items-center gap-3 p-5 border-b border-orange-50">
-          <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
-            <MapPin size={18} className="text-orange-500" />
-          </div>
-          <div>
-            <h2 className="font-bold text-stone-800" style={{ fontFamily: 'Outfit, sans-serif' }}>Where It Came From</h2>
-            <p className="text-xs text-stone-400">{lesson.origin.region} · {lesson.origin.country}</p>
-          </div>
-        </div>
-        <div className="p-5 space-y-4">
-          <p className="text-stone-600 leading-relaxed text-sm sm:text-base">{lesson.origin.story}</p>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: 'Farm', value: lesson.origin.farmName, icon: '🌾' },
-              { label: 'Distance', value: lesson.origin.distance, icon: '📍' },
-              { label: 'Harvest', value: lesson.origin.travelTime, icon: '⏰' },
-            ].map(({ label, value, icon }) => (
-              <div key={label} className="bg-orange-50 rounded-xl p-3 text-center">
-                <div className="text-xl mb-1">{icon}</div>
-                <div className="text-xs text-stone-500 mb-0.5">{label}</div>
-                <div className="text-xs font-bold text-stone-700 leading-tight">{value}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Section 2: Environmental Impact */}
-      <section className="bg-white rounded-2xl shadow-md border border-emerald-50 overflow-hidden">
-        <div className="flex items-center gap-3 p-5 border-b border-emerald-50">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
-            <Leaf size={18} className="text-emerald-500" />
-          </div>
-          <div>
-            <h2 className="font-bold text-stone-800" style={{ fontFamily: 'Outfit, sans-serif' }}>Environmental Impact</h2>
-            <p className="text-xs text-stone-400">How this choice affects our planet</p>
-          </div>
-        </div>
-        <div className="p-5 space-y-5">
-          <CarbonMeter score={lesson.environmental.carbonScore} />
-          <p className="text-stone-600 leading-relaxed text-sm sm:text-base">{lesson.environmental.impact}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="flex items-start gap-2.5 bg-blue-50 rounded-xl p-3">
-              <Droplets size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-blue-700">Water Usage</div>
-                <div className="text-xs text-blue-600 mt-0.5">{lesson.environmental.waterUsage}</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2.5 bg-amber-50 rounded-xl p-3">
-              <Calendar size={16} className="text-amber-500 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-amber-700">Best Season</div>
-                <div className="text-xs text-amber-600 mt-0.5">{lesson.environmental.seasonality}</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2.5 bg-emerald-50 rounded-xl p-3">
-              <Leaf size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-emerald-700">Pesticides</div>
-                <div className="text-xs text-emerald-600 mt-0.5">{lesson.environmental.pesticides}</div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-            <Info size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm font-medium text-amber-800">{lesson.environmental.tip}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3: Community Impact */}
-      <section className="bg-white rounded-2xl shadow-md border border-blue-50 overflow-hidden">
-        <div className="flex items-center gap-3 p-5 border-b border-blue-50">
-          <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-            <Users size={18} className="text-blue-500" />
-          </div>
-          <div>
-            <h2 className="font-bold text-stone-800" style={{ fontFamily: 'Outfit, sans-serif' }}>Community Impact</h2>
-            <p className="text-xs text-stone-400">How your purchase shapes your neighborhood</p>
-          </div>
-        </div>
-        <div className="p-5 space-y-4">
-          <p className="text-stone-600 leading-relaxed text-sm sm:text-base">{lesson.community.story}</p>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-blue-700">{lesson.community.jobs}</div>
-              <div className="text-xs text-blue-500 mt-0.5">Local Jobs</div>
-            </div>
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-orange-700">{lesson.community.familyFarms}</div>
-              <div className="text-xs text-orange-500 mt-0.5">Family Farms</div>
-            </div>
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-3 text-center">
-              <div className="text-lg font-bold text-emerald-700">{lesson.community.localEconomy}</div>
-              <div className="text-xs text-emerald-500 mt-0.5">Local Revenue/yr</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 4: Fun Facts */}
-      <section className="bg-white rounded-2xl shadow-md border border-purple-50 overflow-hidden">
-        <div className="flex items-center gap-3 p-5 border-b border-purple-50">
-          <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
-            <span className="text-lg">🧠</span>
-          </div>
-          <h2 className="font-bold text-stone-800" style={{ fontFamily: 'Outfit, sans-serif' }}>Fun Facts</h2>
-        </div>
-        <div className="p-5 grid sm:grid-cols-2 gap-3">
-          {lesson.funFacts.map((fact, i) => (
-            <div key={i} className="flex items-start gap-2.5 bg-purple-50 rounded-xl p-3">
-              <span className="text-purple-400 font-black text-sm mt-0.5 flex-shrink-0">0{i + 1}</span>
-              <p className="text-sm text-stone-600 leading-relaxed">{fact}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Section 5: Local Action CTA */}
-      <section
-        className="rounded-2xl overflow-hidden shadow-xl"
-        style={{ background: 'linear-gradient(135deg, #f97316, #f43f5e)' }}
-      >
-        <div className="p-6 sm:p-8 text-white">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2">
-                <Zap size={16} className="text-yellow-300" />
-                <span className="text-yellow-200 text-sm font-semibold">Your Local Action</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                {lesson.localAction.icon} {lesson.localAction.title}
-              </h2>
-              <p className="text-white/80 text-sm sm:text-base leading-relaxed">
-                {lesson.localAction.description}
-              </p>
-              <div className="flex items-center gap-3 flex-wrap pt-2">
-                <span className={`text-xs font-bold px-3 py-1.5 rounded-full border ${difficultyColors[lesson.localAction.difficulty]} bg-white/20 border-white/30 text-white`}>
-                  {lesson.localAction.difficulty}
-                </span>
-                <div className="flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1.5">
-                  <Star size={12} className="text-yellow-300 fill-yellow-300" />
-                  <span className="text-xs font-bold text-yellow-200">+{lesson.localAction.reward} XP on completion</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <button
-              id="btn-complete-action"
-              className="flex-1 flex items-center justify-center gap-2 bg-white text-orange-600 font-bold py-3.5 rounded-xl hover:bg-orange-50 transition-colors shadow-lg"
-            >
-              <CheckCircle2 size={18} />
-              I'll Do This!
-              <ChevronRight size={18} />
-            </button>
-            <Link
-              href="/progress"
-              className="flex items-center justify-center gap-2 bg-white/20 backdrop-blur border border-white/30 text-white font-semibold py-3.5 px-5 rounded-xl hover:bg-white/30 transition-colors text-sm"
-            >
-              View Progress
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Nutrition Section */}
-      <section className="bg-white rounded-2xl shadow-md border border-rose-50 overflow-hidden">
-        <div className="flex items-center gap-3 p-5 border-b border-rose-50">
-          <div className="w-9 h-9 rounded-xl bg-rose-50 flex items-center justify-center">
-            <span className="text-lg">💪</span>
-          </div>
-          <h2 className="font-bold text-stone-800" style={{ fontFamily: 'Outfit, sans-serif' }}>Nutrition Highlights</h2>
-        </div>
-        <div className="p-5 space-y-2.5">
-          {lesson.nutritionHighlights.map((item, i) => (
-            <div key={i} className="flex items-center gap-2.5">
-              <CheckCircle2 size={16} className="text-rose-400 flex-shrink-0" />
-              <span className="text-sm text-stone-600">{item}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Bottom CTA */}
-      <div className="text-center pt-2">
-        <p className="text-stone-500 text-sm mb-3">Want to explore another food?</p>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
-        >
-          Scan Another Food
-          <ChevronRight size={16} />
-        </Link>
-      </div>
+      <p className="text-sm text-stone-700 leading-relaxed">{text}</p>
     </div>
   );
 }
 
-function LessonPage() {
+// ── Main lesson content ───────────────────────────────────────────────────────
+function LessonContent() {
   const searchParams = useSearchParams();
-  const foodId  = searchParams.get('food') || 'strawberry';
-  const ageMode = searchParams.get('age')  || '';
-  const lang    = searchParams.get('lang') || 'en';
+  const food        = searchParams.get('food')  || 'strawberry';
+  const ageMode     = searchParams.get('age')   || 'student';
+  const lang        = searchParams.get('lang')  || 'en';
 
-  const ageBadge: Record<string, { emoji: string; label: string }> = {
-    kid:     { emoji: '🧒', label: lang === 'es' ? 'Niño/a'      : 'Kid' },
-    student: { emoji: '🎒', label: lang === 'es' ? 'Estudiante'  : 'Student' },
-    adult:   { emoji: '🧑', label: lang === 'es' ? 'Adulto/a'   : 'Adult' },
-  };
+  const [status,  setStatus]  = useState<Status>('idle');
+  const [lesson,  setLesson]  = useState<LessonResult | null>(null);
+  const [errMsg,  setErrMsg]  = useState('');
+  const [visible, setVisible] = useState(false);
 
-  const langBadge: Record<string, { flag: string; label: string }> = {
-    en: { flag: '🇺🇸', label: 'English' },
-    es: { flag: '🇲🇽', label: 'Español' },
-  };
+  const meta  = foodMeta[food]  ?? foodMeta.strawberry;
+  const aMeta = ageMeta[ageMode] ?? ageMeta.student;
+  const lMeta = langMeta[lang]  ?? langMeta.en;
 
-  const ab = ageBadge[ageMode];
-  const lb = langBadge[lang] ?? langBadge.en;
+  const learnerLabel = lang === 'es' ? aMeta.es : aMeta.en;
+  const foodLabel    = lang === 'es' ? meta.esLabel : meta.label;
+  const language     = lang === 'es' ? 'Spanish' : 'English';
+
+  const generateLesson = useCallback(async () => {
+    setStatus('loading');
+    setLesson(null);
+    setVisible(false);
+    setErrMsg('');
+
+    try {
+      const res = await fetch('/api/generate-lesson', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          food,
+          learnerType:   ageMode,
+          language,
+          learningStyle: 'story',
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || `Server error ${res.status}`);
+      }
+
+      setLesson(data as LessonResult);
+      setStatus('success');
+      // Stagger card reveal
+      setTimeout(() => setVisible(true), 80);
+    } catch (err) {
+      setErrMsg(err instanceof Error ? err.message : 'Something went wrong.');
+      setStatus('error');
+    }
+  }, [food, ageMode, language]);
+
+  // Auto-generate on mount
+  useEffect(() => { generateLesson(); }, [generateLesson]);
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #fffbf5 0%, #fff7ed 60%, #fef3c7 100%)' }}>
-      <NavBar />
-      {/* Mode pills */}
-      {(ab || lb) && (
-        <div className="max-w-3xl mx-auto px-4 pt-4 flex gap-2 flex-wrap">
-          {ab && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-              style={{ background: '#fff0f5', color: '#be185d', border: '1px solid #fecdd3' }}>
-              {ab.emoji} {ab.label}
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-            style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}>
-            {lb.flag} {lb.label}
-          </span>
+    <div className="max-w-2xl mx-auto px-4 pt-4 pb-16 space-y-5">
+      {/* Back */}
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors"
+      >
+        <ArrowLeft size={15} />
+        {lang === 'es' ? 'Volver al inicio' : 'Back to home'}
+      </Link>
+
+      {/* Header card */}
+      <div
+        className="relative overflow-hidden rounded-3xl p-6"
+        style={{
+          background: `linear-gradient(135deg, ${meta.lightBg}, #fff7ed)`,
+          border: `1.5px solid ${meta.accent}30`,
+          boxShadow: `0 12px 40px ${meta.accent}18`,
+        }}
+      >
+        {/* Decorative blobs */}
+        <div
+          className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10"
+          style={{ background: meta.accent, transform: 'translate(30%, -30%)' }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-28 h-28 rounded-full opacity-10"
+          style={{ background: meta.accent, transform: 'translate(-30%, 30%)' }}
+        />
+
+        <div className="relative flex items-start gap-4">
+          <div className="text-5xl">{meta.emoji}</div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span
+                className="text-xs font-bold px-2.5 py-1 rounded-full"
+                style={{ background: `${meta.accent}18`, color: meta.accent }}
+              >
+                <Sparkles size={10} className="inline mr-1" />
+                {lang === 'es' ? 'Lección IA' : 'AI Lesson'}
+              </span>
+            </div>
+
+            <h1
+              className="text-2xl sm:text-3xl font-bold text-stone-900 leading-tight"
+              style={{ fontFamily: 'Outfit, sans-serif' }}
+            >
+              {foodLabel}
+            </h1>
+
+            <div className="flex items-center gap-2 flex-wrap mt-2">
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+                style={{ background: '#fff0f5', color: '#be185d', border: '1px solid #fecdd3' }}
+              >
+                {aMeta.emoji} {learnerLabel}
+              </span>
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+                style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}
+              >
+                {lMeta.flag} {lMeta.label}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Loading ── */}
+      {status === 'loading' && (
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"
+              style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}
+            >
+              <div className="w-3.5 h-3.5 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />
+              {lang === 'es' ? 'Generando tu lección…' : 'Generating your lesson…'}
+            </div>
+          </div>
+          <LoadingSkeleton />
         </div>
       )}
-      <LessonContent foodId={foodId} />
+
+      {/* ── Error ── */}
+      {status === 'error' && (
+        <div
+          className="rounded-2xl p-5 space-y-3"
+          style={{ background: '#fef2f2', border: '1.5px solid #fecaca' }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">⚠️</span>
+            <p className="font-bold text-red-700" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              {lang === 'es' ? 'Error al generar la lección' : 'Could not generate lesson'}
+            </p>
+          </div>
+          <p className="text-sm text-red-600 font-mono bg-red-50 rounded-xl px-3 py-2">{errMsg}</p>
+          <button
+            id="btn-retry"
+            onClick={generateLesson}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-white transition-all duration-200 hover:opacity-90 active:scale-95"
+            style={{ background: '#dc2626' }}
+          >
+            <RefreshCw size={15} />
+            {lang === 'es' ? 'Reintentar' : 'Try Again'}
+          </button>
+        </div>
+      )}
+
+      {/* ── Success: lesson cards ── */}
+      {status === 'success' && lesson && (
+        <>
+          <div className="space-y-4">
+            {cards.map((card, i) => (
+              <LessonCard
+                key={card.key}
+                cardDef={card}
+                text={lesson[card.key]}
+                lang={lang}
+                visible={visible}
+                delay={i * 80}
+              />
+            ))}
+          </div>
+
+          {/* Action row */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              id="btn-regenerate"
+              onClick={generateLesson}
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-95"
+              style={{
+                background: 'white',
+                border: '2px solid #e7e5e4',
+                color: '#57534e',
+              }}
+            >
+              <RefreshCw size={16} />
+              {lang === 'es' ? 'Nueva lección' : 'Regenerate Lesson'}
+            </button>
+
+            <Link
+              href="/"
+              id="btn-new-food"
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm text-white transition-all duration-200 hover:opacity-90 active:scale-95"
+              style={{
+                background: 'linear-gradient(90deg,#f97316,#f43f5e)',
+                boxShadow: '0 8px 24px rgba(249,115,22,0.3)',
+              }}
+            >
+              {lang === 'es' ? 'Explorar otro alimento' : 'Explore Another Food'}
+              <ChevronRight size={16} />
+            </Link>
+          </div>
+
+          {/* Community nudge */}
+          <div
+            className="rounded-2xl p-4 flex items-center gap-3 text-sm"
+            style={{ background: '#f0fdf4', border: '1.5px solid #a7f3d0' }}
+          >
+            <Users size={18} className="text-emerald-500 flex-shrink-0" />
+            <p className="text-emerald-700 font-medium">
+              {lang === 'es'
+                ? '¡Comparte tu lección con la comunidad y gana XP extra!'
+                : 'Share this lesson with your community and earn bonus XP!'}
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
-export default function LessonPageWrapper() {
+// ── Page wrapper (Suspense for useSearchParams) ───────────────────────────────
+export default function LessonPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #fffbf5, #fef3c7)' }}>
-        <div className="text-center space-y-3">
-          <div className="text-5xl float-anim">🌱</div>
-          <p className="text-stone-500 font-semibold">Loading your lesson...</p>
-        </div>
-      </div>
-    }>
-      <LessonPage />
-    </Suspense>
+    <div
+      className="min-h-screen"
+      style={{ background: 'linear-gradient(160deg,#fffbf5 0%,#fff7ed 60%,#fef3c7 100%)' }}
+    >
+      <NavBar />
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-3">
+              <div className="text-5xl float-anim">🌱</div>
+              <p className="text-stone-500 font-semibold">Loading…</p>
+            </div>
+          </div>
+        }
+      >
+        <LessonContent />
+      </Suspense>
+    </div>
   );
 }
